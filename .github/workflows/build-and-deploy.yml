@@ -64,7 +64,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          port: 22
+          script: whoami
           script_stop: true
           envs: IMAGE_REPO,IMAGE_TAG,CONTAINER_NAME,APP_PORT,GHCR_USERNAME,GHCR_TOKEN
           script: |
