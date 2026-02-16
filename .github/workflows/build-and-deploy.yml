@@ -67,7 +67,7 @@ jobs:
           CONTAINER_NAME: test-time-backend
           APP_PORT: "8000"
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_PAT: ${{ secrets.GHCR_TOKEN }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: root
