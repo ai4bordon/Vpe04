@@ -57,7 +57,7 @@ jobs:
           [ -n "${{ secrets.SSH_HOST }}" ] || (echo "SSH_HOST is empty" && exit 1)
           [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ] || (echo "SSH_PRIVATE_KEY is empty" && exit 1)
           [ -n "${{ secrets.GHCR_USERNAME }}" ] || (echo "GHCR_USERNAME is empty" && exit 1)
-          [ -n "${{ secrets.GHCR_PAT }}" ] || (echo "GHCR_PAT is empty" && exit 1)
+          [ -n "${{ secrets.GHCR_TOKEN }}" ] || (echo "GHCR_TOKEN is empty" && exit 1)
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -67,7 +67,7 @@ jobs:
           CONTAINER_NAME: test-time-backend
           APP_PORT: "8000"
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
-          GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: root
@@ -84,6 +84,15 @@ jobs:
             docker pull "${IMAGE}"
 
             docker rm -f "${CONTAINER_NAME}" || true
+
+            PORT_CONFLICTS=$(docker ps --format '{{.ID}} {{.Names}} {{.Ports}}' --filter "publish=${APP_PORT}")
+            if [ -n "${PORT_CONFLICTS}" ]; then
+              echo "Port ${APP_PORT} is already used by another running container."
+              echo "Resolve conflict manually or change APP_PORT."
+              echo "${PORT_CONFLICTS}"
+              exit 1
+            fi
+
             docker run -d \
               --name "${CONTAINER_NAME}" \
               --restart unless-stopped \
